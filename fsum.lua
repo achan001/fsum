@@ -34,7 +34,7 @@ local function fsum(...)
             local ok, prev = true, {unpack(p, 1, p[1])}
             fadd(0)                 -- remove partials overlap
             if (p[1] <= 3) then return p[2] end
-            for i = 2, p[1] do
+            for i = 1, p[1] do
                 if p[i] ~= prev[i] then ok = false; break end
             end
         until ok
