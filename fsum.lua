@@ -35,7 +35,7 @@ local function fsum(...)
             local prev = {unpack(p, i, n)}
             fadd(0)                 -- remove partials overlap
             if n <= 3 then return p[2] end
-            prev[n + 1] = false     -- stop loop if no overlap
+            prev[n + 1] = false     -- sentinel for while loop
             while prev[i] == p[i] do i = i + 1 end
         until i > n
         local x, lo, err = unpack(p, 2, 4)
