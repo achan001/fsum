@@ -1,5 +1,6 @@
 # fsum
-Accurate summation using Shewchuk algorithm
+Accurate summation using ***Shewchuk algorithm***
+(*assumed* double-precision, round-to-nearest mode)
 
 Filesnames *NOT* end with "0" used a modified Shewchuk algorithm, saving partials only if it overflow 53 bits.
 
@@ -10,4 +11,3 @@ Filename ends with "0" used original Shewchuk algorithm.
 
 All partials is sorted and non-overlapping.  It might generate lots of partials to sum, thus much slower.  
 Getting the final sum involved loops (in reverse), slightly more complicated than my modified version
-
