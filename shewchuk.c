@@ -1,3 +1,4 @@
+#include <string.h>
 #include <stdlib.h>
 #include <math.h>
 #define SC_STACK  64        // 2098 bit / 53 = min 40 doubles
