@@ -10,4 +10,9 @@ All partials (except last) used up all 53 bits, generated very few partials.  Th
 Filename ends with "0" used original Shewchuk algorithm.
 
 All partials is sorted and non-overlapping.  It might generate lots of partials to sum, thus much slower.  
-Getting the final sum involved loops (in reverse), slightly more complicated than my modified version
+Getting the final sum involved loops (in reverse), slightly more complicated than my modified version  
+
+***NOTE AGAIN:*** above codes *assumed* double-precision, round-to-nearest mode  
+
+For C/C++ codes: see [issue: Minimum Working Example](https://github.com/achan001/fsum/issues/1)  
+For Lua codes: see [Setting Float Precision in Lua.c](https://marc.info/?l=lua-l&m=152815885306143&w=2)
