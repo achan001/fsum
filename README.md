@@ -16,3 +16,5 @@ Getting the final sum involved loops (in reverse), slightly more complicated tha
 
 For C/C++ codes: see [issue: Minimum Working Example](https://github.com/achan001/fsum/issues/1)  
 For Lua codes: see [Setting Float Precision in Lua.c](https://marc.info/?l=lua-l&m=152815885306143&w=2)
+
+This is an example for [calculating 1000!](http://www.hpmuseum.org/forum/thread-11447-post-104752.html#pid104752)
