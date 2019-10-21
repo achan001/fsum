@@ -1,55 +1,59 @@
 --[[
-> fsum = require 'fsum0'
-> = fsum(0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1) - 1
+lua> fsum = require 'fsum0'
+lua> t = 0.1
+lua> p = fsum(t,t,t,t,t, t,t,t,t,t)
+lua> = p:total() - 1
 0
-> p = fsum()
-> for i = 1, 10 do p:add(0.1) end
-> = p:total() - 1
-0
-> p:total(0)    -- clear calculator
-> for i = 1, 10 do p:add(0.1) end
-> = p:total() - 1
-0
+lua> p:add(-1)     -- get error
+lua> = p:total()
+5.551115123125783e-017
+
+lua> p:total(-1)   -- p = -1
+lua> for i = 1, 10 do p:add(0.1) end
+lua> = p:total()
+5.551115123125783e-017
 --]]
+
 local abs = math.abs
 local function fadd(p, x)
     local i = 2
     for j = 2, p[1] do              -- p[1] = #p
         local y = p[j]
-        if abs(x) < abs(y) then x, y = y, x end
+        if abs(y) > abs(x) then j=y y=x x=j end
         local hi = x + y
-        local lo = y - (hi - x)
+        y = y - (hi - x)            -- error term
         x = hi
-        if lo ~= 0 then p[i] = lo; i = i + 1 end
+        if y ~= 0 then p[i] = y; i = i + 1 end
     end
-    if x - x ~= 0 then i = 2 end    -- Inf or NaN
-    p[i] = x
+    if x - x ~= 0 then i = 2 end    -- Inf / NaN
     p[1] = i
+    p[i] = x
 end
-local function ftotal(p, clear)
-    if clear then p[1] = 1 end      -- clear all partials
+local function ftotal(p, value)
+    if value then p[1]=2; p[2]=value end
     local x = 0
     for i = p[1], 2, -1 do          -- sum in reverse
         local y = p[i]
         local hi = x + y
-        local lo = y - (hi - x)
+        y = y - (hi - x)
         x = hi
-        if lo ~= 0 and i ~= 2 then  -- check half way cases
-            if (lo < 0) == (p[i-1] < 0) then
-                lo = lo * 2         -- |lo| = 1/2 ULP
-                hi = x + lo         -- -> x off 1 ULP
-                if lo == hi - x then x = hi end
+        if y ~= 0 and i ~= 2 then   -- check half way cases
+            if (y < 0) == (p[i-1] < 0) then
+                y = y * 2           -- |y| = 1/2 ULP
+                hi = x + y          -- -> x off 1 ULP
+                if y == hi - x then x = hi end
             end
             break
         end
     end
     return x
 end
+
 local function fsum(...)
+    local n = select('#', ...)
     local p = {add = fadd, total = ftotal, 1}
-    if select('#', ...) == 0 then return p end
-    for i = 1, select('#', ...) do p:add(select(i, ...)) end
-    return p:total()
+    for i = 1, n do p:add(select(i, ...)) end
+    return p
 end
 
 if select(1, ...) ~= 'fsum0' then   -- test code
