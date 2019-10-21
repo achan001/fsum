@@ -2,8 +2,8 @@
 lua> fsum = require 'fsum0'
 lua> t = 0.1
 lua> p = fsum(t,t,t,t,t, t,t,t,t,t)
-lua> = p:total()
-1
+lua> = p:total() - 1
+0
 
 lua> p:add(-1)     -- get error
 lua> = p:total()
