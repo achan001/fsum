@@ -20,7 +20,7 @@ local function fadd(p, x)
     local i = 2
     for j = 2, p[1] do              -- p[1] = #p
         local y = p[j]
-        if abs(y) < abs(x) then j=y y=x x=j end
+        if abs(x) > abs(y) then x,y = y,x end
         local hi = x + y
         y = hi - y
         x = x - y                   -- error term

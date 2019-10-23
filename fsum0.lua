@@ -20,7 +20,7 @@ local function fadd(p, x)
     local i = 2
     for j = 2, p[1] do              -- p[1] = #p
         local y = p[j]
-        if abs(y) > abs(x) then j=y y=x x=j end
+        if abs(y) > abs(x) then x,y = y,x end
         local hi = x + y
         y = y - (hi - x)            -- error term
         x = hi
@@ -30,6 +30,7 @@ local function fadd(p, x)
     p[1] = i
     p[i] = x
 end
+
 local function ftotal(p, value)
     if value then p[1]=2; p[2]=value end
     local x = 0
@@ -40,11 +41,11 @@ local function ftotal(p, value)
         x = hi
         if y ~= 0 and i ~= 2 then   -- check half way cases
             if (y < 0) == (p[i-1] < 0) then
-                y = y * 2           -- |y| = 1/2 ULP
+                y = y * 2           -- if |y| = 1/2 ULP
                 hi = x + y          -- -> x off 1 ULP
-                if y == hi - x then x = hi end
+                if y == hi - x then return hi end
             end
-            break
+            return x
         end
     end
     return x
