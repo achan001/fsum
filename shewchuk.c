@@ -42,12 +42,8 @@ double sc_total(sc_partials *sum)
 {
   if (sum->last == 0) return sum->p[0];
   double x = sum->p[0] + sum->p[1];
-  if (sum->last == 1) return x;
-  double y = sum->p[1] - (x - sum->p[0]);
   double z = sum->p[2];
-  if ((y < 0) == (z < 0) && z != 0) {
-    z = x + (y *= 2);
-    if (y == z - x) return z;   // half-way case
-  }
-  return x;
+  if (sum->last == 1 || z == 0) return x;
+  double u = 2*(sum->p[1] - (x - sum->p[0]));
+  return u==u+x-x && (u<0)==(z<0) ? x+u : x;
 }

@@ -34,12 +34,8 @@ sc_partials::operator double()
 {
   if (last == 0) return sum[0];
   double x = sum[0] + sum[1];
-  if (last == 1) return x;
-  double y = sum[1] - (x - sum[0]);
   double z = sum[2];
-  if ((y < 0) == (z < 0) && z != 0) {
-    z = x + (y *= 2);
-    if (y == z - x) return z;   // half-way case
-  }
-  return x;
+  if (last == 1 || z == 0) return x;
+  double u = 2*(sum[1] - (x - sum[0]));
+  return u==u+x-x && (u<0)==(z<0) ? x+u : x;
 }
