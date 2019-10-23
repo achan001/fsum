@@ -30,20 +30,19 @@ local function fadd(p, x)
     p[1] = i
     p[i] = x
 end
+
 local function ftotal(p, value)
     if value then p[1]=2; p[2]=value end
-    repeat
-        local i, n = 1, p[1]
-        local prev = {unpack(p, i, n)}
-        fadd(p, 0)                  -- remove partials overlap
-        if n <= 3 then return p[2] end
-        while i <= n and p[i] == prev[i] do i = i + 1 end
-    until i > n
-    local x, y, err = unpack(p, 2, 4)
-    if (y < 0) == (err < 0) then    -- check half-way cases
-        y = y * 2                   -- |y| = 1/2 ULP
-        local hi = x + y            -- -> x off 1 ULP
-        if y == hi - x then x = hi end
+    local n = p[1]
+    if n <= 2 then return n<2 and 0 or p[2] end
+    local x = p[2] + p[3]
+    if n == 3 then return x end
+    local y = p[3] - (x - p[2]) -- x + y = p[2] + p[3]
+    local z = p[4]
+    if (y < 0) == (z < 0) and z ~= 0 then
+        y = y * 2               -- if |y| = 1/2 ULP
+        z = x + y               -- then |y+z| > 1/2 ULP
+        if y == z - x then return z end
     end
     return x
 end

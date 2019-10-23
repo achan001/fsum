@@ -1,7 +1,17 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
-#define SC_STACK  64        // 2098 bit / 53 = min 40 doubles
+#define SC_STACK  40
+
+// 1023-(-1022)+53 = 2098 <= 40 doubles
+// Actually, only 39 doubles needed, since all but upto
+// 2 partials use sign bit too (to maintain <= 1/2 ULP)
+// 2098 - 38 = 2060 <= 39 doubles.
+//
+// Example: 1 + (double)(0.1)
+// = 0x1.1999999999999a (exactly)
+// = 0x1.1999999999999 + 0x1.4p-53
+// = 0x1.199999999999a - 0x1.8p-54  (1 bit stored in sign)
 
 typedef struct {
   int last;
@@ -24,25 +34,20 @@ void sc_add(double x, sc_partials *sum)
     x = hi;
     if (lo) sum->p[i++] = x, x = lo;
   }
-  if (i > 0 && isnan(x)) { sum->last = 0; return; }
+  if (isnan(x)) { sum->last = 0; return; }
   sum->p[ sum->last = i ] = x;
-  if (i == SC_STACK - 1) sc_add(0.0, sum);
 }
 
 double sc_total(sc_partials *sum)
 {
-  for(;;) {
-    int n = sum->last + 1;      // number of partials
-    double prev[SC_STACK];
-    memcpy(prev, sum->p, n * sizeof(double));
-    sc_add(0.0, sum);           // remove partials overlap
-    if (n == sum->last + 1)
-      if (memcmp(prev, sum->p, n * sizeof(double)) == 0) break;
-  }
-  double x = sum->p[0], lo = sum->p[1];
-  if (sum->last > 1 && (lo < 0) == (sum->p[2] < 0)) {
-    double hi = x + (lo *= 2);
-    if (lo == (hi - x)) x = hi; // half-way case
+  if (sum->last == 0) return sum->p[0];
+  double x = sum->p[0] + sum->p[1];
+  if (sum->last == 1) return x;
+  double y = sum->p[1] - (x - sum->p[0]);
+  double z = sum->p[2];
+  if ((y < 0) == (z < 0) && z != 0) {
+    z = x + (y *= 2);
+    if (y == z - x) return z;   // half-way case
   }
   return x;
 }

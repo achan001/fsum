@@ -1,7 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
-#define SC_STACK  64        // 2098 bit / 53 = min 40 doubles
+#define SC_STACK  40        // 2098 bit / 53 <= 40 doubles
 
 class sc_partials {         // modified shewchuk algorithm
   public:
@@ -26,25 +26,20 @@ void sc_partials::operator+=(double x)
     x = hi;
     if (lo) sum[i++] = x, x = lo;
   }
-  if (i > 0 && isnan(x)) { last = 0; return; }
+  if (isnan(x)) { last = 0; return; }
   sum[ last = i ] = x;
-  if (i == SC_STACK - 1) *this += 0.0;
 }
 
 sc_partials::operator double()
 {
-  for(;;) {
-    int n = last + 1;           // number of partials
-    double prev[SC_STACK];
-    memcpy(prev, sum, n * sizeof(double));
-    *this += 0.0;               // remove partials overlap
-    if (n == last + 1)
-      if (memcmp(prev, sum, n * sizeof(double)) == 0) break;
-  }
-  double x = sum[0], lo = sum[1];
-  if (last > 1 && (lo < 0) == (sum[2] < 0)) {
-    double hi = x + (lo *= 2);
-    if (lo == (hi - x)) x = hi; // half-way case
+  if (last == 0) return sum[0];
+  double x = sum[0] + sum[1];
+  if (last == 1) return x;
+  double y = sum[1] - (x - sum[0]);
+  double z = sum[2];
+  if ((y < 0) == (z < 0) && z != 0) {
+    z = x + (y *= 2);
+    if (y == z - x) return z;   // half-way case
   }
   return x;
 }
