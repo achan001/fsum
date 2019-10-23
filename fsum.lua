@@ -36,15 +36,9 @@ local function ftotal(p, value)
     local n = p[1]
     if n <= 2 then return n<2 and 0 or p[2] end
     local x = p[2] + p[3]
-    if n == 3 then return x end
-    local y = p[3] - (x - p[2]) -- x + y = p[2] + p[3]
-    local z = p[4]
-    if (y < 0) == (z < 0) and z ~= 0 then
-        y = y * 2               -- if |y| = 1/2 ULP
-        z = x + y               -- then |y+z| > 1/2 ULP
-        if y == z - x then return z end
-    end
-    return x
+    if n == 3 or p[4]==0 then return x end
+    local u = 2*(p[3] - (x - p[2])) -- u = 1 ULP ?
+    return u==u+x-x and (u<0) == (p[4]<0) and x+u or x
 end
 
 local function fsum(...)
