@@ -1,17 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
-#define SC_STACK  40
-
-// 1023-(-1022)+53 = 2098 <= 40 doubles
-// Actually, only 39 doubles needed, since all but upto
-// 2 partials use sign bit too (to maintain <= 1/2 ULP)
-// 2098 - 38 = 2060 <= 39 doubles.
-//
-// Example: 1 + (double)(0.1)
-// = 0x1.1999999999999a (exactly)
-// = 0x1.1999999999999 + 0x1.4p-53
-// = 0x1.199999999999a - 0x1.8p-54  (1 bit stored in sign)
+#define SC_STACK  40        // 2098 bit / 53 <= 40 doubles
 
 typedef struct {
   int last;
