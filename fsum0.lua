@@ -1,5 +1,5 @@
 --[[
-lua> fsum = require 'fsum0'
+lua> fsum = require 'fsum'
 lua> t = 0.1
 lua> p = fsum(t,t,t,t,t, t,t,t,t,t)
 lua> = p:total() - 1
@@ -31,9 +31,9 @@ local function fadd(p, x)
     p[i] = x
 end
 
-local function ftotal(p, value)
-    if value then p[1]=2; p[2]=value end
-    local x = 0
+local function ftotal(p, x)
+    if x then p[1]=2; p[2]=x end
+    x = 0
     for i = p[1], 2, -1 do          -- sum in reverse
         local y = p[i]
         local hi = x + y
@@ -41,7 +41,7 @@ local function ftotal(p, value)
         x = hi
         if y ~= 0 and i ~= 2 then   -- check half way cases
             if (y < 0) == (p[i-1] < 0) then
-                y = y * 2           -- if |y| = 1/2 ULP
+                y = y * 2           -- |y| = 1/2 ULP
                 hi = x + y          -- -> x off 1 ULP
                 if y == hi - x then return hi end
             end
