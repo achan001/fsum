@@ -31,20 +31,21 @@ local function fadd(p, x)
     p[i] = x
 end
 
-local function ftotal(p, x)
-    if x then p[1]=2; p[2]=x end
+local function ftotal(p, x, y)      -- y = local variable
+    if x then p[1]=2; p[2]=x end    -- p = x
     while true do
-        local i, n = 2, p[1]
+        local n = p[1]
         if n <= 2 then return n<2 and 0 or p[2] end
         if n == 3 then return p[2] + p[3] end
-        while i<n and p[i] == p[i] + p[i+1] do i=i+1 end
-        if i == n then break end    -- partials converged
-        p:add(0)
+        x = p[n]    -- partials overlap ?
+        repeat n=n-1; y=0.5*x; x=p[n] until n <= 2 or x ~= x+y
+        if x == x+y then break else p:add(0) end
     end
-    x = p[2]
-    local u = 2*p[3]                -- |u| = 1 ULP ?
-    if u ~= u+x-x then return x end -- not half-way
-    return (u<0) == (p[4]<0) and p[4] ~= 0 and x+u or x
+    y = y + y       -- x + 2y => r + y/2
+    local r = x+y
+    y = 2*(y - (r - x))
+    if y ~= y+r-r then return r end -- |y| < 1 ULP
+    return (y<0) == (p[4]<0) and p[4] ~= 0 and r+y or r
 end
 
 local function fsum(...)
