@@ -44,7 +44,7 @@ local function ftotal(p, x, y)      -- y = local variable
     y = y + y       -- x + 2y => r + y/2
     local r = x+y
     y = 2*(y - (r - x))
-    if y ~= y+r-r then return r end -- |y| < 1 ULP
+    if y ~= y+r-r then return r end -- 0 < |y| < 1 ULP
     return (y<0) == (p[4]<0) and p[4] ~= 0 and r+y or r
 end
 
