@@ -15,14 +15,14 @@ lua> = p:total()
 5.551115123125783e-017
 --]]
 
-local abs = math.abs
 local function fadd(p, x)
     local i = 2
     for j = 2, p[1] do              -- p[1] = #p
         local y = p[j]
-        if abs(y) > abs(x) then x,y = y,x end
         local hi = x + y
-        y = y - (hi - x)            -- error term
+        local yy = hi - x
+        y = y - yy
+        y = x - (hi - yy) + y       -- error term
         x = hi
         if y ~= 0 then p[i] = y; i = i + 1 end
     end
@@ -40,12 +40,9 @@ local function ftotal(p, x)
         y = y - (hi - x)
         x = hi
         if y ~= 0 and i ~= 2 then   -- check half way cases
-            if (y < 0) == (p[i-1] < 0) then
-                y = y * 2           -- |y| = 1/2 ULP
-                hi = x + y          -- -> x off 1 ULP
-                if y == hi - x then return hi end
-            end
-            return x
+            y = y + y
+            if y ~= y+x-x then return x end -- |y| < 1 ULP
+            return (y<0) == (p[i-1]<0) and x+y or x
         end
     end
     return x

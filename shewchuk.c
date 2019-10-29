@@ -17,25 +17,30 @@ void sc_init(sc_partials *sum)
   sum->p[sum->last = 0] = 0.0;
 }
 
-void sc_add(double x, sc_partials *sum)
+void sc_iadd(sc_partials *sum, double x)
 {
   int i=0;
   double y, hi, lo;
   for(int j=0; j <= sum->last; j++) {
     y = sum->p[j];
     hi = x + y;
+#ifdef SC_BRANCH
     lo = (fabs(x) < fabs(y)) ? x - (hi - y) : y - (hi - x);
+#else
+    lo = hi - x;
+    lo = (y - lo) + (x - (hi - lo));
+#endif
     x = hi;
     if (lo) sum->p[i++] = x, x = lo;
   }
-  if (isnan(x)) { sum->last = 0; return; }
+  if (x != x) { sum->last = 0; return; }
   sum->p[ sum->last = i ] = x;
-  if (i == SC_STACK - 1) sc_add(0.0, sum);
+  if (i == SC_STACK - 1) sc_iadd(sum, 0.0);
 }
 
 double sc_total(sc_partials *sum)
 {
-  for(;; sc_add(0.0, sum)) {
+  for(;; sc_iadd(sum, 0.0)) {
     int n = sum->last;
     if (n == 0) return sum->p[0];
     if (n == 1) return sum->p[0] + sum->p[1];

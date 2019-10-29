@@ -15,15 +15,14 @@ lua> = p:total()
 5.551115123125783e-017
 --]]
 
-local abs = math.abs
 local function fadd(p, x)
     local i = 2
     for j = 2, p[1] do              -- p[1] = #p
         local y = p[j]
-        if abs(x) > abs(y) then x,y = y,x end
         local hi = x + y
-        y = hi - y
-        x = x - y                   -- error term
+        local yy = hi - x
+        y = y - yy
+        x = x - (hi - yy) + y       -- error term
         if x == 0 then x = hi else p[i] = hi; i = i + 1 end
     end
     if x ~= x then p[1] = 2 return end

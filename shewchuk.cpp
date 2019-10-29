@@ -22,7 +22,12 @@ void sc_partials::operator+=(double x)
   for(int j=0; j <= last; j++) {
     y = sum[j];
     hi = x + y;
+#ifdef SC_BRANCH
     lo = (fabs(x) < fabs(y)) ? x - (hi - y) : y - (hi - x);
+#else
+    lo = hi - x;
+    lo = (y - lo) + (x - (hi - lo));
+#endif    
     x = hi;
     if (lo) sum[i++] = x, x = lo;
   }
