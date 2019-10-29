@@ -1,7 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
-#define SC_STACK  64        // 2098 bit / 53 = min 40 doubles
+#define SC_STACK  48        // 2098 bit / 53 = min 40 doubles
 
 class sc_partials {         // modified shewchuk algorithm
   public:
@@ -26,25 +26,24 @@ void sc_partials::operator+=(double x)
     x = hi;
     if (lo) sum[i++] = x, x = lo;
   }
-  if (i > 0 && isnan(x)) { last = 0; return; }
+  if (isnan(x)) { last = 0; return; }
   sum[ last = i ] = x;
   if (i == SC_STACK - 1) *this += 0.0;
 }
 
 sc_partials::operator double()
 {
-  for(;;) {
-    int n = last + 1;           // number of partials
-    double prev[SC_STACK];
-    memcpy(prev, sum, n * sizeof(double));
-    *this += 0.0;               // remove partials overlap
-    if (n == last + 1)
-      if (memcmp(prev, sum, n * sizeof(double)) == 0) break;
+  for(;; *this += 0.0) {
+    int n = last;
+    if (n == 0) return sum[0];
+    if (n == 1) return sum[0] + sum[1];
+    double y, *x = &sum[n];
+    while(y=0.5 * *x--, --n && *x == *x + y) ;
+    if (*x == *x + y) {         // partials no overlap
+      double r = *x + (y += y); // *x + 2y => r + y/2
+      y = 2*(y - (r - *x));
+      if (y != y+r-r) return r; // 0 < |y| < 1 ULP
+      return (y<0) == (x[2]<0) && x[2] ? r+y : r;
+    }
   }
-  double x = sum[0], lo = sum[1];
-  if (last > 1 && (lo < 0) == (sum[2] < 0)) {
-    double hi = x + (lo *= 2);
-    if (lo == (hi - x)) x = hi; // half-way case
-  }
-  return x;
 }

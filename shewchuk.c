@@ -1,7 +1,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
-#define SC_STACK  64        // 2098 bit / 53 = min 40 doubles
+#define SC_STACK  48
+
+// max bits = 1023 - (-1022) + 53 = 2098
+// min doubles = 2098/53 <= 40 (all halfway cases)
+// min SC_STACK = 40+1 = 41
 
 typedef struct {
   int last;
@@ -24,25 +28,24 @@ void sc_add(double x, sc_partials *sum)
     x = hi;
     if (lo) sum->p[i++] = x, x = lo;
   }
-  if (i > 0 && isnan(x)) { sum->last = 0; return; }
+  if (isnan(x)) { sum->last = 0; return; }
   sum->p[ sum->last = i ] = x;
   if (i == SC_STACK - 1) sc_add(0.0, sum);
 }
 
 double sc_total(sc_partials *sum)
 {
-  for(;;) {
-    int n = sum->last + 1;      // number of partials
-    double prev[SC_STACK];
-    memcpy(prev, sum->p, n * sizeof(double));
-    sc_add(0.0, sum);           // remove partials overlap
-    if (n == sum->last + 1)
-      if (memcmp(prev, sum->p, n * sizeof(double)) == 0) break;
+  for(;; sc_add(0.0, sum)) {
+    int n = sum->last;
+    if (n == 0) return sum->p[0];
+    if (n == 1) return sum->p[0] + sum->p[1];
+    double y, *x = &sum->p[n];
+    while(y=0.5 * *x--, --n && *x == *x + y) ;
+    if (*x == *x + y) {         // partials no overlap
+      double r = *x + (y += y); // *x + 2y => r + y/2
+      y = 2*(y - (r - *x));
+      if (y != y+r-r) return r; // 0 < |y| < 1 ULP
+      return (y<0) == (x[2]<0) && x[2] ? r+y : r;
+    }
   }
-  double x = sum->p[0], lo = sum->p[1];
-  if (sum->last > 1 && (lo < 0) == (sum->p[2] < 0)) {
-    double hi = x + (lo *= 2);
-    if (lo == (hi - x)) x = hi; // half-way case
-  }
-  return x;
 }
