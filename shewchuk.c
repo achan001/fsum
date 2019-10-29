@@ -1,11 +1,7 @@
-#include <string.h>
-#include <stdlib.h>
 #include <math.h>
-#define SC_STACK  48
-
-// max bits = 1023 - (-1022) + 53 = 2098
-// min doubles = 2098/53 <= 40 (all halfway cases)
-// min SC_STACK = 40+1 = 41
+#define SC_STACK  42
+// max bits = 1023 - (-1074) + 1 = 2098
+// SC_STACK > ceil(2098/53) = 40 doubles
 
 typedef struct {
   int last;
