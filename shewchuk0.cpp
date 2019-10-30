@@ -31,7 +31,16 @@ void sc_partials::operator+=(double x)
   }
   if (x - x != 0) {sum[ last = 0 ] = x; return;}
   sum[ last = i ] = x;
-  if (i == SC_STACK-1) *this += 0.0;  
+
+  if (i == SC_STACK-1) {        // compress stack
+    for(--i; i>0; ) {
+        x = sum[i];
+        y = sum[i-1];
+        sum[i--] = hi = x+y;
+        sum[i--] = y - (hi-x);
+    }
+    *this += 0.0;
+  }
 }
 
 sc_partials::operator double() const

@@ -25,7 +25,7 @@ void sc_partials::operator+=(double x)
 #else
     lo = hi - x;
     lo = (y - lo) + (x - (hi - lo));
-#endif    
+#endif
     x = hi;
     if (lo) sum[i++] = x, x = lo;
   }

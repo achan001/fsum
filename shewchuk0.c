@@ -31,7 +31,16 @@ void sc_iadd(sc_partials *sum, double x)
   }
   if (x - x != 0) {sum->p[ sum->last = 0 ] = x; return;}
   sum->p[ sum->last = i ] = x;
-  if (i == SC_STACK-1) sc_iadd(sum, 0.0);
+
+  if (i == SC_STACK-1) {        // compress stack
+    for(--i; i>0; ) {
+        x = sum->p[i];
+        y = sum->p[i-1];
+        sum->p[i--] = hi = x+y;
+        sum->p[i--] = y - (hi-x);
+    }
+    sc_iadd(sum, 0.0);
+  }
 }
 
 double sc_total(sc_partials *sum)
