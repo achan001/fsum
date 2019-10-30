@@ -1,5 +1,5 @@
 #include <math.h>
-#define SC_STACK  42
+#define SC_STACK  48
 // max bits = 1023 - (-1074) + 1 = 2098
 // SC_STACK > ceil(2098/53) = 40 doubles
 
@@ -31,7 +31,7 @@ void sc_iadd(sc_partials *sum, double x)
   }
   if (x != x) { sum->last = 0; return; }
   sum->p[ sum->last = i ] = x;
-  if (i == SC_STACK - 1) sc_iadd(sum, 0.0);
+  if (i == SC_STACK-1) sc_iadd(sum, 0.0);
 }
 
 double sc_total(sc_partials *sum)

@@ -1,7 +1,7 @@
 #include <math.h>
-#define SC_STACK  40
+#define SC_STACK  48
 // max bits = 1023 - (-1074) + 1 = 2098
-// SC_STACK = ceil(2098/53) = 40 doubles
+// SC_STACK > ceil(2098/53) = 40 doubles
 
 typedef struct {
   int last;
@@ -31,6 +31,7 @@ void sc_iadd(sc_partials *sum, double x)
   }
   if (x - x != 0) {sum->p[ sum->last = 0 ] = x; return;}
   sum->p[ sum->last = i ] = x;
+  if (i == SC_STACK-1) sc_iadd(sum, 0.0);
 }
 
 double sc_total(sc_partials *sum)

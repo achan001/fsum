@@ -1,5 +1,5 @@
 #include <math.h>
-#define SC_STACK  42        // 2098 bit / 53 = min 40 doubles
+#define SC_STACK  48        // 2098 bit / 53 = min 40 doubles
 
 class sc_partials {         // modified shewchuk algorithm
   public:

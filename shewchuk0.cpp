@@ -1,5 +1,5 @@
 #include <math.h>
-#define SC_STACK  40        // 2098 bit / 53 = min 40 doubles
+#define SC_STACK  48        // 2098 bit / 53 = min 40 doubles
 
 class sc_partials {         // shewchuk algorithm
   public:
@@ -31,6 +31,7 @@ void sc_partials::operator+=(double x)
   }
   if (x - x != 0) {sum[ last = 0 ] = x; return;}
   sum[ last = i ] = x;
+  if (i == SC_STACK-1) *this += 0.0;  
 }
 
 sc_partials::operator double() const
