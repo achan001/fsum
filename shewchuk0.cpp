@@ -15,9 +15,9 @@ class sc_partials {         // shewchuk algorithm
 
 void sc_partials::operator+=(double x)
 {
-  int i=0;
+  int i=0, n=last;
   double y, hi, lo;
-  for(int j=0; j <= last; j++) {
+  for(int j=0; j <= n; j++) {
     y = sum[j];
     hi = x + y;
 #ifdef SC_BRANCH
@@ -32,15 +32,14 @@ void sc_partials::operator+=(double x)
   if (x - x != 0) {sum[ last = 0 ] = x; return;}
   sum[ last = i ] = x;
 
-  if (i == SC_STACK-1) {        // compress stack
-    for(--i; i>0; ) {
-        x = sum[i];
-        y = sum[i-1];
-        sum[i--] = hi = x+y;
-        sum[i--] = y - (hi-x);
-    }
-    *this += 0.0;
+  if (i <= n && i != SC_STACK-1) return;
+  for(n=i-1; n>0; ) {           // stack expanded or full
+    x = sum[n];
+    y = sum[n-1];
+    sum[n--] = hi = x+y;
+    sum[n--] = y - (hi-x);      // possibly 0
   }
+  if (i == SC_STACK-1) *this += 0.0;
 }
 
 sc_partials::operator double() const
@@ -54,8 +53,9 @@ sc_partials::operator double() const
     lo -= (hi - x);
     x = hi;
   } while (i && lo == 0);
-  if (i && (hi = x + (lo *= 2), lo == (hi - x)))
-    if ((lo < 0) == (sum[i-1] < 0))
-      return hi;                // half-way case
+  if (i && (hi = x + (lo *= 2), lo == (hi - x))) {
+    double z = i==1 ? sum[0] : sum[i-1] + sum[i-2];
+    if ((lo < 0) == (z < 0) && z) return hi;
+  }
   return x;
 }

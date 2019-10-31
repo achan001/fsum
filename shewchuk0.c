@@ -15,9 +15,9 @@ void sc_init(sc_partials *sum)
 
 void sc_iadd(sc_partials *sum, double x)
 {
-  int i=0;
+  int i=0, n=sum->last;
   double y, hi, lo;
-  for(int j=0; j <= sum->last; j++) {
+  for(int j=0; j <= n; j++) {
     y = sum->p[j];
     hi = x + y;
 #ifdef SC_BRANCH
@@ -32,15 +32,14 @@ void sc_iadd(sc_partials *sum, double x)
   if (x - x != 0) {sum->p[ sum->last = 0 ] = x; return;}
   sum->p[ sum->last = i ] = x;
 
-  if (i == SC_STACK-1) {        // compress stack
-    for(--i; i>0; ) {
-        x = sum->p[i];
-        y = sum->p[i-1];
-        sum->p[i--] = hi = x+y;
-        sum->p[i--] = y - (hi-x);
-    }
-    sc_iadd(sum, 0.0);
+  if (i <= n && i != SC_STACK-1) return;
+  for(n=i-1; n>0; ) {           // stack expanded or full
+    x = sum->p[n];
+    y = sum->p[n-1];
+    sum->p[n--] = hi = x+y;
+    sum->p[n--] = y - (hi-x);   // possibly 0
   }
+  if (i == SC_STACK-1) sc_iadd(sum, 0.0);
 }
 
 double sc_total(sc_partials *sum)
@@ -54,8 +53,9 @@ double sc_total(sc_partials *sum)
     lo -= (hi - x);
     x = hi;
   } while (i && lo == 0);
-  if (i && (hi = x + (lo *= 2), lo == (hi - x)))
-    if ((lo < 0) == (sum->p[i-1] < 0))
-      return hi;                // half-way case
+  if (i && (hi = x + (lo *= 2), lo == (hi - x))) {
+    double z = i==1 ? sum->p[0] : sum->p[i-1] + sum->p[i-2];
+    if ((lo < 0) == (z < 0) && z) return hi;
+  }
   return x;
 }
