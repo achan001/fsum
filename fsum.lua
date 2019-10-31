@@ -1,5 +1,5 @@
 --[[
-lua> fsum = require 'fsum1'
+lua> fsum = require 'fsum'
 lua> t = 0.1
 lua> p = fsum(t,t,t,t,t, t,t,t,t,t)
 lua> = p:total() - 1
