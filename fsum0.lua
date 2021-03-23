@@ -38,8 +38,8 @@ local function ffma(p, a,b)         -- p += a*b
     local ha = a * (2^27+1)
     local hb = b * (2^27+1)
     local x = a * b
-    ha = a + ha - ha    -- hi bits
-    hb = b + hb - hb
+    ha = a - ha + ha    -- hi bits
+    hb = b - hb + hb
     a = a - ha          -- lo bits
     b = b - hb
     p:add(x)
