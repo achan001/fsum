@@ -57,7 +57,7 @@ local function fsum(...)
     return p
 end
 
-if package.loading() then return fsum end
+if if select(1, ...) == 'fsum' then return fsum end
 
 local p, read = fsum(), io.read     -- test code
 io.input(select(1, ...))
