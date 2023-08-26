@@ -4,8 +4,7 @@ lua> t = 0.1
 lua> p = fsum(t,t,t,t,t, t,t,t,t,t)
 lua> = p:total() - 1
 0
-lua> p:add(-1)     -- get error
-lua> = p:total()
+lua> p:add(-1):total()     -- get error
 5.551115123125783e-017
 --]]
 
@@ -24,7 +23,7 @@ local function fadd(p, x)
     p[1] = i
     p[i] = x
 
-    if i <= n then return end
+    if i <= n then return p end
     for i = n, 3, -2 do             -- stack expanded
         x = p[i]
         local y = p[i-1]
@@ -32,6 +31,7 @@ local function fadd(p, x)
         p[i-1] = y - (hi - x)       -- possibly zero
         p[i] = hi
     end
+    return p
 end
 
 local function ffma(p, a,b)         -- p += a*b
@@ -42,8 +42,7 @@ local function ffma(p, a,b)         -- p += a*b
     hb = b - hb + hb
     a = a - ha          -- lo bits
     b = b - hb
-    p:add(x)
-    p:add(a*b - (x - ha*hb - ha*b - hb*a))
+    p: add(x) :add(a*b - (x - ha*hb - ha*b - hb*a))
 end
 
 local function ftotal(p, x)
@@ -71,7 +70,7 @@ local function fsum(...)
     return p
 end
 
-if select(1, ...) == 'fsum0' then return fsum end
+if package.loading() then return fsum end
 
 local p, read = fsum(), io.read     -- test code
 io.input(select(1, ...))
